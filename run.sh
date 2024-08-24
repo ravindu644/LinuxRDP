@@ -25,13 +25,14 @@ create_user() {
 # Function to install and configure RDP
 setup_rdp() {
     echo "Installing Firefox ESR"
-    sudo add-apt-repository ppa:mozillateam/ppa
+    sudo add-apt-repository ppa:mozillateam/ppa    
     sudo apt update
     sudo apt install --assume-yes firefox-esr
 
     echo "Installing dependencies"
     apt update
-    apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0
+    sudo add-apt-repository universe
+    apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0 libfuse2
 
     echo "Installing Desktop Environment"
     export DEBIAN_FRONTEND=noninteractive

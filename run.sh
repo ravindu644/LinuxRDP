@@ -2,6 +2,9 @@
 
 # Copyright (c) [2024] [@ravindu644]
 
+# Set DEBIAN_FRONTEND to noninteractive to suppress prompts
+export DEBIAN_FRONTEND=noninteractive
+
 # Function to create user
 create_user() {
     echo "Creating User and Setting it up"
@@ -35,7 +38,6 @@ setup_rdp() {
     apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0 libfuse2 nload
 
     echo "Installing Desktop Environment"
-    export DEBIAN_FRONTEND=noninteractive
     apt install --assume-yes xfce4 desktop-base xfce4-terminal xfce4-session
     bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > /etc/chrome-remote-desktop-session'
     apt remove --assume-yes gnome-terminal

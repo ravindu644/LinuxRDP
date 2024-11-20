@@ -35,7 +35,7 @@ setup_rdp() {
     echo "Installing dependencies"
     apt update
     sudo add-apt-repository universe -y
-    apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0 libfuse2 nload qbittorrent ffmpeg gpac
+    apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0 libfuse2 nload qbittorrent ffmpeg gpac fonts-lklug-sinhala
 
     echo "Installing Desktop Environment"
     apt install --assume-yes xfce4 desktop-base xfce4-terminal xfce4-session

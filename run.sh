@@ -31,6 +31,7 @@ setup_rdp() {
     sudo add-apt-repository ppa:mozillateam/ppa -y  
     sudo apt update
     sudo apt install --assume-yes firefox-esr
+    sudo apt install --assume-yes dbus-x11 dbus 
 
     echo "Installing dependencies"
     apt update

@@ -25,17 +25,27 @@ create_user() {
     echo "User created and configured having username '$username'"
 }
 
+#extra storage setup
+setup_storage() {
+    local username="$1" 
+    mkdir -p /storage
+    chmod 777 /storage
+    chown "$username":"$username" /storage
+    mkdir -p /home/"$username"/storage
+    mount --bind /storage /home/"$username"/storage
+}
+
 # Function to install and configure RDP
 setup_rdp() {
     echo "Installing Firefox ESR"
-    sudo add-apt-repository ppa:mozillateam/ppa -y  
-    sudo apt update
-    sudo apt install --assume-yes firefox-esr
-    sudo apt install --assume-yes dbus-x11 dbus 
+    add-apt-repository ppa:mozillateam/ppa -y  
+    apt update
+    apt install --assume-yes firefox-esr
+    apt install --assume-yes dbus-x11 dbus 
 
     echo "Installing dependencies"
     apt update
-    sudo add-apt-repository universe -y
+    add-apt-repository universe -y
     apt install --assume-yes xvfb xserver-xorg-video-dummy xbase-clients python3-packaging python3-psutil python3-xdg libgbm1 libutempter0 libfuse2 nload qbittorrent ffmpeg gpac fonts-lklug-sinhala
 
     echo "Installing Desktop Environment"
@@ -59,6 +69,7 @@ setup_rdp() {
 
     su - "$username" -c "$CRP --pin=$Pin"
     service chrome-remote-desktop start
+    setup_storage "$username"
 
     echo "RDP setup completed"
 }

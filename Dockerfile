@@ -32,6 +32,7 @@ RUN apt-get update && \
     python3-xdg \
     libgbm1 \
     libutempter0 \
+    git \
     libfuse2 \
     nload \
     qbittorrent \

@@ -46,7 +46,12 @@ RUN apt-get update && \
     curl \
     aria2 \
     coreutils \
-    psmisc && \
+    psmisc \
+    zip \
+    unzip \
+    p7zip-full \
+    p7zip-rar \
+    xz-utils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

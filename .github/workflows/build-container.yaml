@@ -117,12 +117,9 @@ jobs:
           
           ### 3. Install Docker (if not already installed)
 
-          Visit https://docs.docker.com/get-docker/ for Docker installation instructions.
 
           ```bash
-          # Add current user to docker group
-          sudo usermod -aG docker $USER
-          newgrp docker
+          sudo apt install docker.io && sudo usermod -aG docker $USER && newgrp docker
           ```          
           
           ### 4. Start the Container

@@ -1,0 +1,162 @@
+name: Build and Package Linux RDP Container
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    
+    - name: Set environment variables
+      run: |
+        echo "RELEASE_TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+        echo "RELEASE_NAME=linux-rdp-${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t linux-rdp .
+    
+    - name: Export and compress Docker image
+      run: |
+        echo "Exporting Docker image as tar..."
+        docker save -o linux-rdp.tar linux-rdp
+        
+        echo "Compressing with xz (maximum compression)..."
+        xz -z -T0 -9 linux-rdp.tar
+        
+        echo "Compressed image size:"
+        du -h linux-rdp.tar.xz
+    
+    - name: Create release package
+      run: |
+        # Create release directory
+        mkdir -p "${RELEASE_NAME}"
+        
+        # Move compressed image
+        mv linux-rdp.tar.xz "${RELEASE_NAME}/"
+        
+        # Copy necessary files
+        cp Dockerfile "${RELEASE_NAME}/"
+        cp docker-rdp.sh "${RELEASE_NAME}/"
+        cp entrypoint.sh "${RELEASE_NAME}/"
+        
+        # Make script executable
+        chmod +x "${RELEASE_NAME}/docker-rdp.sh"
+        
+        # Create final zip package (store only, no compression since tar.xz is already compressed)
+        zip -0 -r "${RELEASE_NAME}.zip" "${RELEASE_NAME}"
+        
+        echo "Final package size:"
+        du -h "${RELEASE_NAME}.zip"
+    
+    - name: Generate checksums
+      run: |
+        sha256sum "${RELEASE_NAME}.zip" > "${RELEASE_NAME}.zip.sha256"
+        cat "${RELEASE_NAME}.zip.sha256"
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.RELEASE_NAME }}
+        path: |
+          *.zip
+          *.sha256
+    
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ github.event.inputs.tag }}
+        name: "Linux RDP ${{ github.event.inputs.tag }}"
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "*.zip,*.sha256"
+        body: |
+          # Linux RDP Docker Container - ${{ github.event.inputs.tag }}
+          
+          ## 📦 What's Included
+          - Pre-built Docker image (compressed with xz)
+          - Dockerfile for custom builds
+          - Management script (docker-rdp.sh)
+          - Entrypoint script
+          
+          ## 🚀 Quick Start
+          
+          ### 1. Download and Extract
+          ```bash
+          # Download the zip file
+          wget https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/linux-rdp-${{ github.event.inputs.tag }}.zip
+          
+          # Extract it
+          unzip linux-rdp-${{ github.event.inputs.tag }}.zip
+          
+          # Navigate to the directory
+          cd linux-rdp-${{ github.event.inputs.tag }}
+          ```
+          
+          ### 2. Make Script Executable
+          ```bash
+          chmod +x docker-rdp.sh
+          ```
+          
+          ### 3. Install Docker (if not already installed)
+
+          Visit https://docs.docker.com/get-docker/ for Docker installation instructions.
+
+          ```bash
+          # Add current user to docker group
+          sudo usermod -aG docker $USER
+          newgrp docker
+          ```          
+          
+          ### 4. Start the Container
+          ```bash
+          ./docker-rdp.sh start
+          ```
+          
+          You'll be prompted to:
+          1. Visit http://remotedesktop.google.com/headless
+          2. Authenticate and copy the command
+          3. Set a PIN (6 or more digits)
+          
+          ## 📖 Available Commands
+          
+          | Command | Description |
+          |---------|-------------|
+          | `./docker-rdp.sh build` | Build/rebuild the Docker image from Dockerfile |
+          | `./docker-rdp.sh package` | Build and package image as .tar.xz |
+          | `./docker-rdp.sh start` | Start the RDP container (auto-loads compressed image) |
+          | `./docker-rdp.sh stop` | Stop the running container |
+          | `./docker-rdp.sh logs` | View live container logs |
+          | `./docker-rdp.sh shell` | Open interactive shell in container |
+          | `./docker-rdp.sh uninstall` | Remove container and image |
+          
+          ## 🔑 Features
+          - **User**: Passwordless sudo user `linux-rdp`
+          - **Desktop**: XFCE4 Desktop Environment
+          - **Browser**: Firefox ESR pre-installed
+          - **Remote Access**: Chrome Remote Desktop
+          - **Storage**: `/storage` directory for persistent data
+          
+          ```
+          
+          ## 📝 Notes
+          - The pre-built image loads automatically on first run
+          - Container runs with `--privileged` flag for Chrome Remote Desktop
+          - Press Ctrl+C while viewing logs to detach (container keeps running)

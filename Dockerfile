@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV USERNAME=linux-rdp
 
 # Install sudo first
+RUN sed -i 's/^# deb/deb/g' /etc/apt/sources.list
 RUN apt-get update && \
     apt-get install -y sudo && \
     apt-get clean && \
@@ -45,6 +46,7 @@ RUN apt-get update && \
     nano \
     curl \
     aria2 \
+    xdg-utils \
     coreutils \
     psmisc \
     zip \

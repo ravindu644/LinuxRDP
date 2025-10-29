@@ -42,6 +42,10 @@ RUN apt-get update && \
     xfce4-terminal \
     xfce4-session \
     xscreensaver \
+    nano \
+    curl \
+    aria2 \
+    coreutils \
     psmisc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

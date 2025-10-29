@@ -162,14 +162,17 @@ case "$1" in
             echo "Creating a new container..."
             echo -e "${YELLOW}You'll be prompted for Chrome Remote Desktop setup.${RESET}"
             echo -e "${YELLOW}Press Ctrl+C to stop and exit.${RESET}"
-            docker run -it --privileged --name "$CONTAINER_NAME" "$IMAGE_NAME"
+            echo -e "${BLUE}Note: Container will auto-remove when stopped (ephemeral mode)${RESET}"
+            docker run -it --rm --privileged --name "$CONTAINER_NAME" "$IMAGE_NAME"
         fi
         ;;
 
     stop)
-        echo -e "${BLUE}--- Stopping container: '$CONTAINER_NAME' ---${RESET}"
+        echo -e "${BLUE}--- Stopping and removing container: '$CONTAINER_NAME' ---${RESET}"
         if docker stop "$CONTAINER_NAME" 2>/dev/null; then
             echo -e "${GREEN}Container stopped.${RESET}"
+            docker rm "$CONTAINER_NAME" 2>/dev/null
+            echo -e "${GREEN}Container removed. All session data deleted.${RESET}"
         else
             echo -e "${YELLOW}Container is not running.${RESET}"
         fi
